@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MysteryBite — Blind Food Box Subscription</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #121218;
+      color: #f0f0f5;
+      line-height: 1.7;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      display: flex; justify-content: center; align-items: center; gap: 2rem;
+      padding: 1.25rem 2rem;
+      background: rgba(18, 18, 24, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    nav .logo {
+      font-weight: 700; font-size: 1.4rem; color: #fff; text-decoration: none;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    nav .logo span { font-size: 1.5rem; }
+    nav ul { list-style: none; display: flex; gap: 2rem; }
+    nav a { color: #aaa; text-decoration: none; font-size: .95rem; transition: color .3s; }
+    nav a:hover { color: #fff; }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      text-align: center;
+      padding: 6rem 2rem 4rem;
+      background: radial-gradient(ellipse at top, #2a1b3d 0%, transparent 70%),
+                  radial-gradient(ellipse at bottom left, #1a2a3a 0%, transparent 60%);
+    }
+    .hero-badge {
+      display: inline-block; padding: .45rem 1.25rem; border-radius: 999px;
+      font-size: .8rem; letter-spacing: .1em; text-transform: uppercase;
+      background: rgba(131, 90, 246, 0.15); color: #c8b7ff;
+      border: 1px solid rgba(131, 90, 246, 0.25); margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-size: clamp(2.8rem, 6vw, 5rem); font-weight: 800; line-height: 1.1;
+      max-width: 85%; margin-bottom: 1.5rem;
+    }
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(90deg, #a78bfa, #f472b6, #fb923c);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p { max-width: 540px; color: #d3d3d8; font-size: 1.15rem; margin-bottom: 2.5rem; }
+
+    .cta {
+      display: inline-block; padding: .9rem 2.5rem; border-radius: 10px;
+      font-size: 1.05rem; text-decoration: none; transition: all .2s ease;
+      border: none; cursor: pointer;
+    }
+    .cta-primary {
+      background: linear-gradient(135deg, #8b5cf6, #d946ef); color: #fff;
+      box-shadow: 0 4px 18px rgba(139, 92, 246, .4);
+    }
+    .cta-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(139, 92, 246, .55); }
+    .cta-secondary { background: rgba(255,255,255,0.06); color: #fff; border: 1px solid rgba(255,255,255,0.12) !important; }
+    .cta-secondary:hover { background: rgba(255,255,255,0.1); }
+    .hero-ctas { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 3rem; }
+
+    /* BOX ANIMATION */
+    .box-scene { perspective: 800px; margin-bottom: 3rem; }
+    .box {
+      width: 140px; height: 140px; position: relative;
+      transform-style: preserve-3d;
+      animation: float 4s ease-in-out infinite;
+      cursor: pointer; user-select: none;
+    }
+    .box-face {
+      position: absolute; width: 140px; height: 140px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3.5rem; border-radius: 16px;
+    }
+    .face-front { transform: translateZ(70px); background: linear-gradient(135deg, #6d28d9, #c026d3); }
+    .face-back  { transform: rotateY(180deg) translateZ(70px); background: linear-gradient(135deg, #86198f, #be185d); }
+    .face-right { transform: rotateY(90deg) translateZ(70px); background: linear-gradient(135deg, #7c3aed, #db2777); }
+    .face-left  { transform: rotateY(-90deg) translateZ(70px); background: linear-gradient(135deg, #4f46e5, #be185d); }
+    .face-top   { transform: rotateX(90deg) translateZ(70px); background: linear-gradient(135deg, #a78bfa, #f472b6); font-size: 3rem; }
+    .face-bottom{ transform: rotateX(-90deg) translateZ(70px); background: #4c1d95; }
+    @keyframes float {
+      0%, 100% { transform: rotateY(0deg) translateY(0); }
+      50%      { transform: rotateY(360deg) translateY(-12px); }
+    }
+
+    /* SOCIAL PROOF */
+    .social-proof { display: flex; flex-direction: column; align-items: center; gap: 1.25rem; }
+    .avatars { display: flex; }
+    .avatar {
+      width: 36px; height: 36px; border-radius: 50%; margin-left: -10px;
+      border: 2.5px solid #121218; display: flex; align-items: center; justify-content: center;
+      font-size: .75rem; font-weight: 700; color: #fff;
+    }
+    .avatar:first-child { margin-left: 0; }
+    .social-proof span { color: #a3a3a8; font-size: .95rem; }
+
+    /* SECTIONS */
+    section { padding: 7rem 2rem; max-width: 1100px; margin: 0 auto; }
+    section.center { text-align: center; }
+    .section-label {
+      text-transform: uppercase; letter-spacing: .2em; font-size: .8rem;
+      color: #c8b7ff; margin-bottom: .75rem;
+    }
+    h2 {
+      font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; line-height: 1.3;
+      margin-bottom: 1rem;
+    }
+    h2 em {
+      font-style: normal;
+      background: linear-gradient(to right, #a78bfa, #f472b6);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* HOW IT WORKS */
+    .steps {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2.5rem; margin-top: 3rem;
+    }
+    .step {
+      padding: 1.75rem; border-radius: 16px;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+      text-align: center; transition: background .2s ease, transform .2s ease;
+    }
+    .step:hover { background: rgba(255,255,255,0.06); transform: translateY(-4px); }
+    .step-number {
+      width: 48px; height: 48px; border-radius: 50%; display: flex;
+      align-items: center; justify-content: center; font-weight: 700; font-size: 1.3rem;
+      margin: 0 auto 1.25rem; background: linear-gradient(135deg, #8b5cf6, #d946ef); color: #fff;
+    }
+    .step h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: .75rem; }
+    .step p { color: #a3a3a8; font-size: .95rem; }
+
+    /* FLAVOR CARDS */
+    .flavors-scroll {
+      display: flex; gap: 1.25rem; overflow-x: auto; padding: 2rem 0 1.5rem;
+      scroll-snap-type: x mandatory; scrollbar-width: none;
+    }
+    .flavors-scroll::-webkit-scrollbar { display: none; }
+    .flavor-card {
+      min-width: 180px; border-radius: 16px; overflow: hidden;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+      scroll-snap-align: center; flex-shrink: 0; text-align: center;
+      transition: transform .2s ease;
+    }
+    .flavor-card:hover { transform: scale(1.04); }
+    .flavor-emoji { font-size: 3rem; padding: 1.5rem 0 .75rem; }
+    .flavor-name   { font-weight: 600; font-size: .95rem; margin-bottom: .25rem; padding: 0 1rem; }
+    .flavor-desc   { color: #a3a3a8; font-size: .8rem; padding: 0 1rem 1.25rem; }
+
+    /* PRICING */
+    .pricing-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem; margin-top: 3rem;
+    }
+    .price-card {
+      padding: 2rem; border-radius: 20px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      transition: transform .2s ease;
+    }
+    .price-card:hover { transform: translateY(-6px); }
+    .price-card.featured {
+      border-color: #8b5cf6;
+      background: linear-gradient(135deg, rgba(139,92,246,0.12), rgba(18,90,78,0.08));
+    }
+    .price-card.featured:hover { border-color: #c084fc; }
+    .tier-name {
+      font-size: .85rem; text-transform: uppercase; letter-spacing: .12em;
+      color: #a3a3a8; margin-bottom: .75rem;
+    }
+    .price-row { display: flex; align-items: baseline; gap: .25rem; margin-bottom: 1.25rem; }
+    .price-dollars { font-size: 2.4rem; font-weight: 800; }
+    .price-period  { color: #a3a3a8; font-size: .95rem; }
+    .features { list-style: none; margin-bottom: 1.5rem; }
+    .features li { display: flex; align-items: center; gap: .5rem; margin-bottom: .65rem; color: #d3d3d8; font-size: .95rem; }
+    .feature-check {
+      width: 20px; height: 20px; border-radius: 50%; background: #8b5cf6;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: .7rem; color: #fff; flex-shrink: 0;
+    }
+
+    /* TESTIMONIALS */
+    .testimonials {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem; margin-top: 3rem;
+    }
+    .testimonial {
+      padding: 1.75rem; border-radius: 16px;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+    }
+    .testimonial-quote { font-style: italic; color: #c8c8d0; margin-bottom: 1rem; line-height: 1.7; }
+    .testimonial-stars { color: #facc15; letter-spacing: 2px; margin-bottom: .75rem; }
+    .testimonial-author strong { font-weight: 600; }
+    .testimonial-author span { color: #a3a3a8; margin-left: .5rem; }
+
+    /* FAQ */
+    .faq-list { max-width: 640px; margin: 2.5rem auto 0; }
+    .faq-item { border-bottom: 1px solid rgba(255,255,255,0.06); cursor: pointer; }
+    .faq-question {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.25rem 0; font-weight: 600; font-size: 1.05rem;
+    }
+    .faq-answer {
+      max-height: 0; overflow: hidden; transition: max-height .4s ease, padding .3s ease;
+      color: #a3a3a8; line-height: 1.7;
+    }
+    .faq-item.open .faq-answer { max-height: 300px; padding-bottom: 1rem; }
+    .faq-toggle { font-size: 1.5rem; color: #c8b7ff; transition: transform .3s ease; }
+    .faq-item.open .faq-toggle { transform: rotate(45deg); }
+
+    /* FINAL CTA */
+    .final-cta {
+      padding: 6rem 2rem; text-align: center; display: flex;
+      flex-direction: column; align-items: center;
+      background: radial-gradient(ellipse at center, rgba(139,92,246,0.1) 0%, transparent 70%);
+    }
+    .final-cta h2 { font-size: clamp(2rem, 5vw, 3.2rem); margin-bottom: 1rem; color: #fff; }
+    .final-cta p  { color: #a3a3a8; max-width: 480px; line-height: 1.7; margin-bottom: 2.5rem; }
+
+    /* FOOTER */
+    footer {
+      text-align: center; padding: 3rem 2rem; border-top: 1px solid rgba(255,255,255,0.06);
+      color: #71717a; font-size: .9rem;
+    }
+    footer a { color: #71717a; text-decoration: none; margin: 0 1rem; }
+    footer a:hover { color: #fff; }
+
+    /* SCROLL REVEAL */
+    [data-animate] { opacity: 0; transform: translateY(30px); transition: all .8s ease-out; }
+    [data-animate].visible { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 768px) {
+      nav ul { display: none; }
+      .hero h1 { font-size: 2.4rem; }
+      .pricing-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="logo" href="#"><span>&#x1F52E;</span> MysteryBite</a>
+  <ul>
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#flavors">Flavors</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">&#x1F680; Launching July 2026 &bull; New every month</div>
+  <h1>You never know what's<br>inside the <em>box</em>.</h1>
+  <p>A monthly subscription of blind food boxes. Each month, we surprise you with a curated selection of snacks from around the world &mdash; handpicked by real food nerds.</p>
+
+  <div class="hero-ctas">
+    <a href="#pricing" class="cta cta-primary">Subscribe Now</a>
+    <a href="#how"     class="cta cta-secondary">How it works &rarr;</a>
+  </div>
+
+  <!-- ANIMATED BOX -->
+  <div class="box-scene">
+    <div class="box" id="mystery-box">
+      <div class="box-face face-front"></div>
+      <div class="box-face face-back"></div>
+      <div class="box-face face-right"></div>
+      <div class="box-face face-left"></div>
+      <div class="box-face face-top">&#x1F52E;</div>
+      <div class="box-face face-bottom"></div>
+    </div>
+  </div>
+
+  <!-- SOCIAL PROOF -->
+  <div class="social-proof">
+    <div class="avatars">
+      <div class="avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444);">A</div>
+      <div class="avatar" style="background:linear-gradient(135deg,#7c3aed,#3b82f6);">B</div>
+      <div class="avatar" style="background:linear-gradient(135deg,#65a30d,#e67e25);">S</div>
+      <div class="avatar" style="background:linear-gradient(135deg,#f472b6,#f97316);">T</div>
+    </div>
+    <span>&#x1F525; 12,000+ subscribers and counting</span>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" class="center" data-animate>
+  <div class="section-label">How it works</div>
+  <h2>Three easy steps to <em>sweet surprise</em></h2>
+  <p style="color:#a3a3a8; max-width:560px; margin:0 auto;">Pick a plan, get a box. Repeat every month.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-number">1</div>
+      <h3>Choose your tier</h3>
+      <p>Pick from Starter, Explorer, or Gourmet &mdash; each level unlocks bigger surprises.</p>
+    </div>
+    <div class="step">
+      <div class="step-number">2</div>
+      <h3>We curate &amp; ship</h3>
+      <p>Our food nerds hand-select 5&ndash;16 snacks from brands worldwide. Delivered to your door.</p>
+    </div>
+    <div class="step">
+      <div class="step-number">3</div>
+      <h3>Unbox &amp; discover</h3>
+      <p>Rip open the box, taste new treats, rate them, and tell us what you got.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FLAVORS SHOWCASE -->
+<section id="flavors" data-animate>
+  <div class="section-label">What&amp;#x27;s inside?</div>
+  <h2>Your monthly <em>surprises</em></h2>
+  <p style="color:#a3a3a8; max-width:560px;">Every box is different &mdash; here are some past picks.</p>
+
+  <div class="flavors-scroll">
+    <div class="flavor-card"><div class="flavor-emoji">&#x1F336;&#xFE0F;</div><div class="flavor-name">Thai Ghost Pepper Ramen</div><div class="flavor-desc">Not for the faint-hearted</div></div>
+    <div class="flavor-card"><div class="flavor-emoji">&#x1F375;</div><div class="flavor-name">Matcha White Choc</div><div class="flavor-desc">From Kyoto, Japan</div></div>
+    <div class="flavor-card"><div class="flavor-emoji">&#x1F9C0;</div><div class="flavor-name">Artisanal Cheese Wheel</div><div class="flavor-desc">Aged 14 months</div></div>
+    <div class="flavor-card"><div class="flavor-emoji">&#x1F36B;</div><div class="flavor-name">72% Dark Bean</div><div class="flavor-desc">Single origin &mdash; Ecuador</div></div>
+    <div class="flavor-card"><div class="flavor-emoji">&#x1F353;</div><div class="flavor-name">Lychee Rose Jelly</div><div class="flavor-desc">A delicate fusion</div></div>
+    <div class="flavor-card"><div class="flavor-emoji">&#x1F36F;</div><div class="flavor-name">Mango Honey Crunch</div><div class="flavor-desc">Crunchy bites to die for</div></div>
+    <div class="flavor-card"><div class="flavor-emoji">&#x1F37F;</div><div class="flavor-name">Truffle Popcorn</div><div class="flavor-desc">Black truffle &amp; parmesan</div></div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" data-animate>
+  <div class="section-label">Plans</div>
+  <h2>Pick your level of <em>surprise</em></h2>
+  <p style="color:#a3a3a8; max-width:560px; margin:0 auto;">All plans include shipping. Cancel anytime.</p>
+
+  <div class="pricing-grid">
+    <!-- STARTER -->
+    <div class="price-card">
+      <div class="tier-name">Starter</div>
+      <div class="price-row"><span class="price-dollars">$19</span><span class="price-period">/month</span></div>
+      <ul class="features">
+        <li><span class="feature-check">&check;</span> 5 surprise snacks/month</li>
+        <li><span class="feature-check">&check;</span> Free shipping</li>
+        <li><span class="feature-check">&check;</span> Flavor profile quiz</li>
+      </ul>
+      <a href="#" class="cta cta-secondary" style="width:100%;text-align:center;margin-top:.5rem;">Get Started</a>
+    </div>
+
+    <!-- EXPLORER -->
+    <div class="price-card featured">
+      <div class="tier-name">&#x2B50; Explorer &mdash; Most Popular</div>
+      <div class="price-row"><span class="price-dollars">$29</span><span class="price-period">/month</span></div>
+      <ul class="features">
+        <li><span class="feature-check">&check;</span> 8 surprise snacks/month</li>
+        <li><span class="feature-check">&check;</span> Priority shipping</li>
+        <li><span class="feature-check">&check;</span> Exclusive recipe card</li>
+        <li><span class="feature-check">&check;</span> Swap portal access</li>
+      </ul>
+      <a href="#" class="cta cta-primary" style="width:100%;text-align:center;margin-top:.5rem;">Subscribe Now</a>
+    </div>
+
+    <!-- GOURMET -->
+    <div class="price-card">
+      <div class="tier-name">& #x1F3C6; Gourmet</div>
+      <div class="price-row"><span class="price-dollars">$49</span><span class="price-period">/month</span></div>
+      <ul class="features">
+        <li><span class="feature-check">&check;</span> 12+ premium snacks/month</li>
+        <li><span class="feature-check">&check;</span> Express next-day shipping</li>
+        <li><span class="feature-check">&check;</span> Early access to limited drops</li>
+        <li><span class="feature-check">&check;</span> Everything in Explorer</li>
+      </ul>
+      <a href="#" class="cta cta-secondary" style="width:100%;text-align:center;margin-top:.5rem;">Go Gourmet</a>
+    </div>
+
+    <!-- ENTERPRISE -->
+    <div class="price-card">
+      <div class="tier-name">& #x1F3E2; Enterprise</div>
+      <div class="price-row"><span class="price-dollars" style="font-size:1.6rem;">Custom</span><span class="price-period">/month</span></div>
+      <ul class="features">
+        <li><span class="feature-check">&check;</span> Branded custom boxes</li>
+        <li><span class="feature-check">&check;</span> Bulk ordering &amp; invoicing</li>
+        <li><span class="feature-check">&check;</span> Dedicated account manager</li>
+      </ul>
+      <a href="#" class="cta cta-secondary" style="width:100%;text-align:center;margin-top:.5rem;">Contact Sales</a>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section data-animate>
+  <div class="section-label">What people say</div>
+  <h2>&ldquo;Wait, this was from <em>where</em>?&rdquo;</h2>
+
+  <div class="testimonials">
+    <div class="testimonial">
+      <p class="testimonial-quote">&ldquo;I got Japanese cheese crackers that I&#x27;d never heard existed. Now they&#x27;re my favorite snack of all time.&rdquo;</p>
+      <p class="testimonial-stars">&#x2B50;&#x2B50;&#x2B50;&#x2B50;&#x2B50;</p>
+      <div class="testimonial-author"><strong>Sarah K.</strong> <span>Explorer plan</span></div>
+    </div>
+    <div class="testimonial">
+      <p class="testimonial-quote">&ldquo;My family dinner has turned into a snack unboxing party every month. The kids LOVE it.&rdquo;</p>
+      <p class="testimonial-stars">&#x2B50;&#x2B50;&#x2B50;&#x2B50;&#x2B50;</p>
+      <div class="testimonial-author"><strong>Marcus T.</strong> <span>Gourmet plan</span></div>
+    </div>
+    <div class="testimonial">
+      <p class="testimonial-quote">&ldquo;Finally, something to replace boring book club. I get a box and send photos of the contents to friends.&rdquo;</p>
+      <p class="testimonial-stars">&#x2B50;&#x2B50;&#x2B50;&#x2B50;&#x2B50;</p>
+      <div class="testimonial-author"><strong>Alex L.</strong> <span>Starter plan</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" data-animate>
+  <div class="section-label">FAQ</div>
+  <h2>Frequently asked <em>questions</em></h2>
+
+  <div class="faq-list">
+    <div class="faq-item">
+      <div class="faq-question"><span>What do I get inside?</span><span class="faq-toggle">+</span></div>
+      <div class="faq-answer">Every box contains surprise snacks curated by our team of food nerds. You&#x27;ll receive 5&ndash;12 items depending on your plan &mdash; everything from artisanal chocolates to spicy chips from countries you&#x27;ve never snacked before.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question"><span>Can I skip or cancel?</span><span class="faq-toggle">+</span></div>
+      <div class="faq-answer">Yes! Skip a month or cancel anytime from your dashboard. Nostrings, no fees.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question"><span>Where are snacks sourced?</span><span class="faq-toggle">+</span></div>
+      <div class="faq-answer">We source directly from manufacturers and specialty stores across 40+ countries. Every month&#x27;s origin changes &mdash; that&#x27;s part of the fun.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question"><span>What about allergies?</span><span class="faq-toggle">+</span></div>
+      <div class="faq-answer">Set your allergen profile during signup and we&#x27;ll filter out anything you can&#x27;t safely eat. Common allergens are flagged on every item card.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question"><span>Do you ship internationally?</span><span class="faq-toggle">+</span></div>
+      <div class="faq-answer">Currently we ship within the US and Canada. International shipping is on our roadmap for Q4 2026 &mdash; join the waitlist to get early access.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta" data-animate>
+  <h2>Ready to take the <em>mystery bite</em>?</h2>
+  <p>Join 12,000+ food explorers getting surprise snacks delivered monthly. Cancel anytime.</p>
+  <a href="#pricing" class="cta cta-primary">Subscribe Now</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div style="font-size:1.2rem;font-weight:700;margin-bottom:.75rem;">&#x1F52E; MysteryBite</div>
+  <div><a href="#">About</a><a href="#">Blog</a><a href="#">Contact</a></div>
+  <p style="margin-top:1.25rem;font-size:.8rem;color:#3f3f46;">&#xA9; 2026 MysteryBite, Inc. All rights reserved.</p>
+</footer>
+
+<script>
+  // FAQ toggle
+  document.querySelectorAll('.faq-question').forEach(function(q) {
+    q.addEventListener('click', function() { this.parentElement.classList.toggle('open'); });
+  });
+
+  // Scroll-reveal animation
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('[data-animate]').forEach(function(el) { obs.observe(el); });
+
+  // Box click easter egg
+  var box = document.getElementById('mystery-box');
+  var clicks = 0;
+  var emojis = ['&#x1F389;&#xFE0F;', '&#x1F92E;', '&#x1F60B;', '&#x1F355;', '&#x1F36E;', '&#x1F990;', '&#x1F9C1;'];
+  box.addEventListener('click', function() {
+    document.querySelector('.face-top').textContent = emojis[clicks % emojis.length];
+    clicks++;
+  });
+
+  // Smooth scroll for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      e.preventDefault();
+      var target = document.querySelector(this.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+</script>
+
+</body>
+</html>
